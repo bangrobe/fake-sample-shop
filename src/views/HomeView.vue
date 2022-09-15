@@ -17,9 +17,17 @@
             {{ category }}
           </li>
         </ul>
+        <div class="border-[1px] bg-white p-4 mt-4">
+          <select @change="sortProduct($event)" class="w-full">
+          <option>Default</option>
+          <option value="price">Price</option>
+          <option value="name">Name</option>
+        </select>
+        </div>
+    
       </div>
       <div class="flex flex-wrap col-span-3">
-        <div class="md:w-1/4 w-full p-2 flex flex-col" v-for="product in products" :key="product.id">
+        <div class="md:w-1/4 w-full p-2 flex flex-col" v-for="product in displayProducts" :key="product.id">
           <div class="rounded-md shadow-sm border-[1px] h-full">
             <figure class="p-2">
               <img :src="product.image" />
@@ -44,6 +52,7 @@ export default {
       categories: [],
       products: [],
       selectedCategory: null,
+      sortValue: null
     };
   },
   methods: {
@@ -81,9 +90,23 @@ export default {
       .catch((error)=>{
         console.log(error)
       })
+    },
+    sortProduct(event) {
+      this.sortValue = event.target.value;
     }
   },
-
+  computed: {
+    displayProducts () {
+      if(this.sortValue === "price") {
+        return this.products.sort(((a, b) => parseFloat(a.price) - parseFloat(b.price)))
+      } else if(this.sortValue === "name") {
+        return this.products.sort(((a,b) => (a.title > b.title) ? 1 : ((b.title > a.title) ? -1 : 0)))
+      } else {
+        //Default sort by id
+        return this.products.sort(((a, b) => a.id - b.id))
+      }
+    }
+  },
   mounted() {
     this.getCategories();
     this.getAllProducts();
